@@ -6,7 +6,7 @@
 
 | Number | Description |
 |:--:|:--:|
-|1| [Window thread usage](WorkerThreadSync.cpp) |
+|1| [Window thread usage](socket_programming/WorkerThreadSync.cpp) |
 |2| [echo service example](socket_programming/echo_service.md) |
 
 
