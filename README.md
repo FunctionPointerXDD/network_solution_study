@@ -6,7 +6,7 @@
 
 | Number | Description |
 |:--:|:--:|
-|1. | [Window thread usage](WorkerThreadSync.cpp) |
-|2. | 
+|1| [Window thread usage](WorkerThreadSync.cpp) |
+|2| |
 
 
