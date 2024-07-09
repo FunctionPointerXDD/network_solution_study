@@ -29,4 +29,6 @@
 	&rarr; CLOSE 할 때는 **클라이언트에서 먼저** FIN 요청을 서버에게 보내는 것이 정상적인 절차이다. (4-way handshaking)
 	* wireshark 로 연결과정을 확인가능
 ######
+![tcp socket diagram](https://upload.wikimedia.org/wikipedia/en/5/57/Tcp_state_diagram.png?20080306050740)
+######
 - Windows Socket 함수들 &rarr; API, SDK ... 
