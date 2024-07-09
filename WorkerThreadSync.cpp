@@ -2,6 +2,7 @@
 #include <Windows.h>
 
 //작업자 스레드 함수.
+//WINAPI : calling convention -->  #define WINAPI __stdcall
 DWORD WINAPI ThreadFunction(LPVOID pParam)
 {
 	puts("*** Begin Thread ****");
