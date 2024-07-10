@@ -99,7 +99,7 @@ while (hClient = ::accept((hSocket, (SOCKADDR *)&clientaddr, &nAddrLen)) != INVA
 // receive 될 때까지 wait (만약 0이 반환되면 client의 종료 요청으로 받아드림)
 while (nReceive = ::recv(hClient, szBuffer, sizeof(szBuffer), 0))
 {
-	//수신한 버퍼 크기만큼을 그대로 copy (write == send)
+	//수신한 버퍼 크기만큼을 그대로 copy후 client에게 내용 그대로 전송 (write == send)
 	::send(hClient, szBuffer, sizeof(szBuffer), 0);
 	puts(szBuffer);
 	memset(szBuffer, 0, sizeof(szBuffer));
