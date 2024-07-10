@@ -56,7 +56,7 @@ if (::bind(hSocket, (SOCKADDR *)&svraddr, sizeof(svraddr)) == SOCKET_ERROR)
 }
 ```
 - port 번호는 프로세스에 대한 식별자라고 볼 수 있다. (프로세스 마다 독립적으로 부여되므로)
-- 대부분의 네트워크 서버는 big-endian을 사용한다. 이 때문에 little endian을 쓰는 client는 htons(), htonl()을 사용해서 big-endian으로 변환해주어야 한다.
+- 대부분의 네트워크 서버는 big-endian을 사용한다. 이 때문에 little endian을 쓰는 서버는 htons(), htonl()을 사용해서 big-endian으로 변환해주어야 한다.
 
 ##
 ##### server listen 
