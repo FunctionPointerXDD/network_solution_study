@@ -85,6 +85,7 @@ int nReceive = 0;
 ##### server accept
 ```c++
 //client connect -> accept, and new socket create(open)
+//통신 소켓 연결
 while (hClient = ::accept((hSocket, (SOCKADDR *)&clientaddr, &nAddrLen)) != INVALID_SOCKET)
 {
 	puts("new client connect");
@@ -119,3 +120,65 @@ while (nReceive = ::recv(hClient, szBuffer, sizeof(szBuffer), 0))
 ::closesocket(hSocket);
 
 ```
+---
+##
+##### client create
+```c++
+SOCKET hSocket = ::socket(AF_INET, SOCK_STREAM, 0);
+if (hSocket == INVALID_SOCKET)
+{
+	puts("ERROR: socket create failed");
+	return 0;
+}
+```
+
+##
+##### client connect
+- 클라이언트의 포트번호는 운영체제에서 자동으로 지정해 준다.
+```c++
+SOCKADDR_IN svraddr = { 0 };
+svraddr.sin_family = AF_INET;
+//연결할 서버의 포트 번호
+svraddr.sin_port = htons(25000);
+//연결할 서버 ip 주소
+svraddr.sin_addr.S_un.S_addr = inet_addr("192.168.66.1"); //--> 문자열로 입력해주면 알아서 숫자로 잘 변환해준다. // 컴퓨터 한 대로 할 경우 127.0.0.1로 테스트
+if (::connect(hSocket, (SOCKADDR *)&svraddr, sizeof(svraddr)) == SOCKET_ERROR)
+{
+	puts("ERROR: Unable to connect to server.");
+	return 0;
+}
+```
+&rarr; 처음 TCP 연결 과정에서(3-way handshaking) 여러 정보를 교환하는데, 이 때 보안상의 목적으로 **Sequence number**를 교환한다. 이것은 unsigned int 32bit의 임의의 값이 부여된다. segment 단위로 교환이 되며, 서로 SYN을 보내고, 응답할 때 마다 받은 SYN값에 1을 더해서 ACK를 보낸다. 그리고 TCP의 최대 크기의 정보가 있는 MSS의 값도 같이 교환된다. 이 외에도 여러가지 정보가 교환된다. 
+
+
+##
+##### client send/recv
+```c++
+//채팅 메세지 송/수신
+char szBuffer[128] = { 0 };
+while (1)
+{
+	gets_s(szBuffer);
+	if (strcmp(szBuffer, "EXIT") == 0)
+		break ;
+	
+	//send to server
+	::send(hSocket, szBuffer, strlen(szBuffer) + 1, 0);
+	//clear buffer
+	memset(szBuffer, 0, sizeof(szBuffer));
+	//recieve from server echo msg
+	::recv(hSocket, szBuffer, sizeof(szBuffer), 0);
+	printf("Form server: %s\n", szBuffer);
+}
+```
+
+##
+##### client close
+```c++
+::shutdown(hSocket, SD_BOTH);
+::closesocket(hSocket);
+```
+
+- 종료할 때는 4-way handshaking이 이루어진다. 
+- 그리고 반드시 종료는 **client**가 해야 종료되게끔 만들어야 한다!!
+- client가 FIN + ACK를 server에게 보내면, 통신 종료과정이 진행된다.
