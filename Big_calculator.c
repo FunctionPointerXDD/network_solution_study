@@ -4,22 +4,28 @@
 #include <stdlib.h>
 #include <ctype.h>
 
+# define BUFFER_SIZE 1024
+
+void	Swap(int *n1, int *n2)
+{
+	int tmp = 0;
+
+	tmp = *n1;
+	*n1 = *n2;
+	*n2 = tmp;
+}
+
 char	*Sub(const char *buf1, const char *buf2)
 {
 	char *res = 0;
 	int	len1 = 0, len2 = 0, raise = 0;
-	int size = 0;
+	int size = 0, neg = 0;
 	
-	res = malloc(sizeof(char) * 102);
-	if (!res)
-	{
-		puts("malloc failed!");
-		exit(1);
-	}
-	memset(res, 0, sizeof(char) * 102);
-
 	if (buf1[0] == '-')
+	{
+		neg = 1;
 		buf1++;
+	}
 	if (buf2[0] == '-')
 		buf2++;
 		
@@ -27,23 +33,27 @@ char	*Sub(const char *buf1, const char *buf2)
 	len2 = strlen(buf2);
 	if (len1 == 0 || len2 == 0)
 		return 0;
-	if (len1 <= len2)
+	if ((len1 < len2) || (len1 == len2 && strncmp(buf1, buf2, len1) < 0))
 	{
-		if(buf1[len1 - 1] < buf2[len2 - 1])
-		{
-			res[0] = '-';
-			char *tmp = (char *)buf1;
-			buf1 = buf2;
-			buf2 = tmp;
-			puts("n1 < n2");
-		}
+		neg ^= 1;
+		char *tmp = (char *)buf1;
+		buf1 = buf2;
+		buf2 = tmp;
+		Swap(&len1, &len2);
 	}
-	if (len1 >= len2)
-		size = len1;
+	if (neg)
+		size = len1 + 1;
 	else
-		size = len2;
-	res[size] = '\0';
+		size = len1;
 
+	res = malloc(sizeof(char) * (size + 1));
+	if (!res)
+	{
+		perror("malloc failed!");
+		exit(1);
+	}
+	memset(res, 0, sizeof(char) * (size + 1));
+	res[size] = '\0';
 	while (size--)
 	{
 		int tmp1 = 0, tmp2 = 0, num = 0;
@@ -65,31 +75,42 @@ char	*Sub(const char *buf1, const char *buf2)
 		num = num % 10;
 		res[size] = (char)(num + '0');
 	}
+	if(neg)
+		res[0] = '-';
 	return res;	
 }
 
 char	*Add(const char *buf1, const char *buf2)
 {
-	char *res;
+	char *res = 0;
 	int	len1 = 0, len2 = 0, raise = 0;
-	int size = 0;
+	int size = 0, neg = 0;
 	
-	res = malloc(sizeof(char) * 101 + 1);
-	if (!res)
+	if (buf1[0] == '-' && buf2[0] == '-')
 	{
-		puts("malloc failed!");
-		exit(1);
+		buf1++;
+		buf2++;
+		neg = 1;
 	}
-	memset(res, 0, sizeof(char) * 102);
-
 	len1 = strlen(buf1);
 	len2 = strlen(buf2);
+	if (len1 == 0 || len2 == 0)
+		return 0;
 	if (len1 >= len2)
-		size = len1;
+		size = len1 + 1;
 	else
-		size = len2;
-	res[size] = '\0';
+		size = len2 + 1;
+	if (neg)
+		size++;
 
+	res = malloc(sizeof(char) * (size + 1));
+	if (!res)
+	{
+		perror("malloc failed!");
+		exit(1);
+	}
+	memset(res, 0, sizeof(char) * (size + 1));
+	res[size] = '\0';
 	while (size--)
 	{
 		int tmp1 = 0, tmp2 = 0, num = 0;
@@ -108,10 +129,12 @@ char	*Add(const char *buf1, const char *buf2)
 		num = num % 10;
 		res[size] = (char)(num + '0');
 	}
+	if (neg)
+		res[0] = '-';
 	return res;	
 }
 
-int check_digit(const char *buf)
+int valid_check(const char *buf)
 {
 	while (*buf)
 	{
@@ -124,32 +147,45 @@ int check_digit(const char *buf)
 
 int	main(void)
 {
-	char buf1[102] = { 0 };
-	char buf2[102] = { 0 };
+	char buf1[BUFFER_SIZE] = { 0 };
+	char buf2[BUFFER_SIZE] = { 0 };
 	char *res = 0;
 	char op = 0;
 
-	fgets(buf1, 102, stdin);	
-	buf1[strlen(buf1) - 1] = '\0'; //개행 제거, //최대 입력 자릿수: 100
-	fgets(buf2, 102, stdin);	
-	buf2[strlen(buf2) - 1] = '\0'; //개행 제거, //최대 입력 자릿수: 100
+	printf("Big_Calulator> ");
+	fgets(buf1, BUFFER_SIZE, stdin);	
+	buf1[strlen(buf1) - 1] = '\0';
+	printf("Big_Calulator> ");
+	fgets(buf2, BUFFER_SIZE, stdin);	
+	buf2[strlen(buf2) - 1] = '\0';
 
-	if (!check_digit(buf1) || !check_digit(buf2))
+	if (!valid_check(buf1) || !valid_check(buf2))
 	{
 		puts("invalid argument!");
 		return 1;
 	}
-	//parse
-	if ((buf1[0] == '-' && buf2[0] != '-') || (buf1[0] != '-' && buf2[0] == '-'))
+	if (buf1[0] == '-' && buf2[0] != '-' || buf1[0] != '-' && buf2[0] == '-') 
 		op = '-';
+	else
+		op = '+';
 
 	if (op == '+')
 		res = Add(buf1, buf2);
 	else if (op == '-') 
 		res = Sub(buf1, buf2);
+	
+	int i = 0;
+	while(res[i])
+	{
+		if (res[i] == '0' && res[i + 1] != '\0')
+			i++;
+		else
+			break;
+	}
 
-	printf("Result: %s\n", res);
+	printf("Result: %s\n", &res[i]);
 
 	free(res);
 	return 0;
 }
+
