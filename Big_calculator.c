@@ -17,18 +17,16 @@ void	Swap(int *n1, int *n2)
 
 char	*Sub(const char *buf1, const char *buf2)
 {
-	char *res = 0;
-	int	len1 = 0, len2 = 0, raise = 0;
-	int size = 0, neg = 0;
+	char	*res = 0;
+	int		size = 0, neg = 0, len1 = 0, len2 = 0, raise = 0;
 	
 	if (buf1[0] == '-')
-	{
 		neg = 1;
+	while (!isdigit(*buf1))
 		buf1++;
-	}
-	if (buf2[0] == '-')
+	while (!isdigit(*buf2))
 		buf2++;
-		
+
 	len1 = strlen(buf1);
 	len2 = strlen(buf2);
 	if (len1 == 0 || len2 == 0)
@@ -82,16 +80,15 @@ char	*Sub(const char *buf1, const char *buf2)
 
 char	*Add(const char *buf1, const char *buf2)
 {
-	char *res = 0;
-	int	len1 = 0, len2 = 0, raise = 0;
-	int size = 0, neg = 0;
+	char	*res = 0;
+	int		size = 0, neg = 0, len1 = 0, len2 = 0, raise = 0;
 	
 	if (buf1[0] == '-' && buf2[0] == '-')
-	{
-		buf1++;
-		buf2++;
 		neg = 1;
-	}
+	while (!isdigit(*buf1))
+		buf1++;
+	while (!isdigit(*buf2))
+		buf2++;
 	len1 = strlen(buf1);
 	len2 = strlen(buf2);
 	if (len1 == 0 || len2 == 0)
@@ -136,45 +133,33 @@ char	*Add(const char *buf1, const char *buf2)
 
 int valid_check(const char *buf)
 {
+	int sign = 0;
+
+	if (*buf == '\0')
+		return 0;
 	while (*buf)
 	{
 		if (!isdigit(*buf) && !isblank(*buf) && *buf != '-' && *buf != '+')
 			return 0;
+		else if (*buf == '-' || *buf == '+')
+			sign++;
 		buf++;
 	}
+	if (sign > 1)
+		return 0;
 	return 1;
 }
 
-int	main(void)
+void	PrintResult(const char *res)
 {
-	char buf1[BUFFER_SIZE] = { 0 };
-	char buf2[BUFFER_SIZE] = { 0 };
-	char *res = 0;
-	char op = 0;
-
-	printf("Big_Calulator> ");
-	fgets(buf1, BUFFER_SIZE, stdin);	
-	buf1[strlen(buf1) - 1] = '\0';
-	printf("Big_Calulator> ");
-	fgets(buf2, BUFFER_SIZE, stdin);	
-	buf2[strlen(buf2) - 1] = '\0';
-
-	if (!valid_check(buf1) || !valid_check(buf2))
-	{
-		puts("invalid argument!");
-		return 1;
-	}
-	if (buf1[0] == '-' && buf2[0] != '-' || buf1[0] != '-' && buf2[0] == '-') 
-		op = '-';
-	else
-		op = '+';
-
-	if (op == '+')
-		res = Add(buf1, buf2);
-	else if (op == '-') 
-		res = Sub(buf1, buf2);
-	
 	int i = 0;
+	int neg = 0;
+
+	if (res[0] == '-')
+	{
+		neg = 1;
+		i++;
+	}
 	while(res[i])
 	{
 		if (res[i] == '0' && res[i + 1] != '\0')
@@ -183,9 +168,48 @@ int	main(void)
 			break;
 	}
 
-	printf("Result: %s\n", &res[i]);
+	if (neg)
+		printf("Result: -%s\n", &res[i]);
+	else
+		printf("Result: %s\n", &res[i]);
+}
 
-	free(res);
+int	main(void)
+{
+	char buf1[BUFFER_SIZE] = { 0 };
+	char buf2[BUFFER_SIZE] = { 0 };
+	char *res = NULL;
+
+	while (1)
+	{
+		printf("\nNum1> ");
+		fgets(buf1, BUFFER_SIZE, stdin);
+		if (strncmp(buf1, "exit\n", 6) == 0)
+			break ;
+		printf("Num2> ");
+		fgets(buf2, BUFFER_SIZE, stdin);	
+		if (strncmp(buf1, "\n", 2) == 0 && strncmp(buf2, "\n", 2) == 0)
+		{
+			printf("\033[2J\033[1;1H");
+			continue;
+		}
+		buf1[strlen(buf1) - 1] = '\0';
+		buf2[strlen(buf2) - 1] = '\0';
+
+		if (!valid_check(buf1) || !valid_check(buf2))
+		{
+			puts("invalid argument!");
+			continue ;
+		}
+		if ((buf1[0] == '-' && buf2[0] != '-') || (buf1[0] != '-' && buf2[0] == '-')) 
+			res = Sub(buf1, buf2);
+		else
+			res = Add(buf1, buf2);
+
+		PrintResult(res);
+		free(res);
+	}
 	return 0;
 }
+
 
