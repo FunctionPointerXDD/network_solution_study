@@ -134,19 +134,24 @@ char	*Add(const char *buf1, const char *buf2)
 int valid_check(const char *buf)
 {
 	int sign = 0;
+	const char *tmp = buf;
 
-	if (*buf == '\0')
+	if (*tmp == '\0')
 		return 0;
-	while (*buf)
+	while (*tmp == '-' || *tmp == '+')
 	{
-		if (!isdigit(*buf) && !isblank(*buf) && *buf != '-' && *buf != '+')
+		sign++;
+		if (sign > 1)
 			return 0;
-		else if (*buf == '-' || *buf == '+')
-			sign++;
-		buf++;
+		tmp++;
 	}
-	if (sign > 1)
-		return 0;
+	tmp = ++buf;
+	while (*tmp)
+	{
+		if (!isdigit(*tmp) && !isblank(*tmp))
+			return 0;
+		tmp++;
+	}
 	return 1;
 }
 
