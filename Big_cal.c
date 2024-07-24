@@ -185,7 +185,7 @@ int valid_check(const char *buf)
 	while (*tmp == '-' || *tmp == '+')
 	{
 		sign++;
-		if (sign > 1)
+		if (sign > 1 || *(tmp + 1) == '\0')
 			return 0;
 		tmp++;
 	}
@@ -222,4 +222,5 @@ void	PrintResult(const char *res)
 	else
 		printf("Result: %s\n", &res[i]);
 }
+
 
